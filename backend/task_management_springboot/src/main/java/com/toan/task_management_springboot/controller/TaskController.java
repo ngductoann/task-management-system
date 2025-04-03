@@ -1,5 +1,7 @@
 package com.toan.task_management_springboot.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import com.toan.task_management_springboot.dto.UpdateTaskDTO;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/api/v1/tasks")
@@ -50,7 +51,8 @@ public class TaskController {
     public ResponseEntity<?> createTask(@RequestBody CreateTaskDTO createTaskDTO) {
         try {
             Task taskSaved = taskService.createTask(createTaskDTO);
-            return ResponseEntity.ok(taskSaved);
+            URI location = URI.create("/api/v1/tasks/" + taskSaved.getId());
+            return ResponseEntity.created(location).body(taskSaved);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating task: " + e.getMessage());

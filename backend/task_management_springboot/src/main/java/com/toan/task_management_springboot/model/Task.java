@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents a task entity in the task management system.
  * This entity is mapped to the "tasks" table in the database.
@@ -60,6 +62,7 @@ public class Task {
      * Defaults to the current timestamp.
      */
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonProperty("due_date")
     private LocalDateTime dueDate;
 
     /**
@@ -67,6 +70,7 @@ public class Task {
      * This value is set automatically and cannot be updated.
      */
     @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
 
     /**
@@ -74,6 +78,7 @@ public class Task {
      * This value is set automatically.
      */
     @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonProperty("updated_at")
     private LocalDateTime updatedAt;
 
     /**
