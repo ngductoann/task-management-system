@@ -5,42 +5,58 @@ import com.toan.task_management_springboot.model.Status;
 import com.toan.task_management_springboot.model.Task;
 import com.toan.task_management_springboot.service.TaskService;
 import com.toan.task_management_springboot.repository.TaskRepository;
+import com.toan.task_management_springboot.dto.CreateTaskDTO;
+import com.toan.task_management_springboot.dto.UpdateTaskDTO;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TaskServiceImpl implements TaskService {
     @Autowired
     public TaskRepository taskRepository;
 
     @Override
     public List<Task> getAllTasks() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllTasks'");
+        return taskRepository.findAll();
     }
 
     @Override
     public Task getTaskById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTaskById'");
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Task with ID " + id + " does not exist."));
     }
 
     @Override
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
+    public Task createTask(CreateTaskDTO createTaskDTO) {
+        return taskRepository.save(createTaskDTO.toEntity());
     }
 
     @Override
-    public Task updateTask(Integer id, Task task) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateTask'");
+    public Task updateTask(Integer id, UpdateTaskDTO updateTaskDTO) {
+        if (taskRepository.existsById(id)) {
+            Task existingTask = taskRepository.findById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Task with ID " + id + " does not exist."));
+
+            Task updatedTask = updateTaskDTO.toEntity();
+            updatedTask.setId(id);
+            updatedTask.setCreatedAt(existingTask.getCreatedAt()); // Preserve createdAt
+
+            return taskRepository.save(updatedTask);
+        } else {
+            throw new IllegalArgumentException("Task with ID " + id + " does not exist.");
+        }
     }
 
     @Override
     public void deleteTask(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteTask'");
+        if (taskRepository.existsById(id)) {
+            taskRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("Task with ID " + id + " does not exist.");
+        }
     }
 
     @Override

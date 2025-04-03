@@ -1,0 +1,38 @@
+###
+GET http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+
+###
+
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+
+{
+  "title": "Complete project documentation",
+  "description": "Write and finalize the project documentation.",
+  "priority": "HIGH",
+  "dueDate": "2025-04-10 15:00:00"
+}
+
+###
+
+PUT http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+
+{
+  "title": "Updated Task Title",
+  "description": "Updated description of the task.",
+  "status": "IN_PROGRESS",
+  "priority": "MEDIUM",
+  "dueDate": "2025-04-15 10:00:00"
+}
+
+###
+DELETE http://localhost:8080/api/v1/tasks/1
+Content-Type: application/json
+###
