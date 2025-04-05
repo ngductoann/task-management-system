@@ -8,7 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,74 +29,77 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @AllArgsConstructor
 public class Task {
 
-    /**
-     * The unique identifier for the task.
-     * This value is auto-generated.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	/**
+	 * The unique identifier for the task.
+	 * This value is auto-generated.
+	 */
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    /**
-     * The title of the task.
-     */
-    private String title;
+	/**
+	 * The title of the task.
+	 */
+	@Column(length = 255, nullable = false)
+	private String title;
 
-    /**
-     * A detailed description of the task.
-     */
-    private String description;
+	/**
+	 * A detailed description of the task.
+	 */
+	@Column(length = 1000)
+	private String description;
 
-    /**
-     * The current status of the task.
-     * Defaults to {@code Status.OPEN}.
-     */
-    private Status status = Status.OPEN;
+	/**
+	 * The current status of the task.
+	 * Defaults to {@code Status.OPEN}.
+	 */
+	private Status status = Status.OPEN;
 
-    /**
-     * The priority level of the task.
-     */
-    private Priority priority;
+	/**
+	 * The priority level of the task.
+	 */
+	@Column(nullable = false)
+	private Priority priority;
 
-    /**
-     * The due date and time for the task.
-     * Defaults to the current timestamp.
-     */
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @JsonProperty("due_date")
-    private LocalDateTime dueDate;
+	/**
+	 * The due date and time for the task.
+	 * Defaults to the current timestamp.
+	 */
+	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@JsonProperty("due_date")
+	private LocalDateTime dueDate;
 
-    /**
-     * The timestamp when the task was created.
-     * This value is set automatically and cannot be updated.
-     */
-    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @JsonProperty("created_at")
-    private LocalDateTime createdAt;
+	/**
+	 * The timestamp when the task was created.
+	 * This value is set automatically and cannot be updated.
+	 */
+	@Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@JsonProperty("created_at")
+	private LocalDateTime createdAt;
 
-    /**
-     * The timestamp when the task was last updated.
-     * This value is set automatically.
-     */
-    @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @JsonProperty("updated_at")
-    private LocalDateTime updatedAt;
+	/**
+	 * The timestamp when the task was last updated.
+	 * This value is set automatically.
+	 */
+	@Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+	@JsonProperty("updated_at")
+	private LocalDateTime updatedAt;
 
-    /**
-     * Sets the creation and update timestamps before persisting the entity.
-     */
-    @PrePersist
-    private void onCreate() {
-        LocalDateTime now = LocalDateTime.now();
-        this.createdAt = now;
-        this.updatedAt = now;
-    }
+	/**
+	 * Sets the creation and update timestamps before persisting the entity.
+	 */
+	@PrePersist
+	private void onCreate() {
+		LocalDateTime now = LocalDateTime.now();
+		this.createdAt = now;
+		this.updatedAt = now;
+	}
 
-    /**
-     * Updates the timestamp before updating the entity.
-     */
-    @PreUpdate
-    private void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+	/**
+	 * Updates the timestamp before updating the entity.
+	 */
+	@PreUpdate
+	private void onUpdate() {
+		this.updatedAt = LocalDateTime.now();
+	}
 }

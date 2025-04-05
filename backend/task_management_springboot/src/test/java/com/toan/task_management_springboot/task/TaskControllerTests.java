@@ -1,7 +1,5 @@
 package com.toan.task_management_springboot.task;
 
-import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -27,111 +25,146 @@ import com.toan.task_management_springboot.service.TaskService;
 
 @WebMvcTest(TaskController.class)
 public class TaskControllerTests {
-    private static final String BASE_URL = "/api/v1/tasks";
+	private static final String BASE_URL = "/api/v1/tasks";
 
-    @Autowired
-    MockMvc mockMvc;
-    @Autowired
-    ObjectMapper mapper;
-    @MockitoBean
-    TaskService taskService;
+	@Autowired
+	MockMvc mockMvc;
+	@Autowired
+	ObjectMapper mapper;
+	@MockitoBean
+	TaskService taskService;
 
-    @Test
-    public void testGetAllTasksShouldReturn200Ok() throws Exception {
-        mockMvc.perform(get(BASE_URL))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
-    }
+	@Test
+	public void testGetAllTasksShouldReturn200Ok() throws Exception {
+		mockMvc.perform(get(BASE_URL))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/json"));
+	}
 
-    @Test
-    public void testGetTaskByIdShouldReturn200Ok() throws Exception {
-        int taskId = 1;
+	@Test
+	public void testGetTaskByIdShouldReturn200Ok() throws Exception {
+		int taskId = 1;
 
-        CreateTaskDTO task = new CreateTaskDTO();
+		CreateTaskDTO task = new CreateTaskDTO();
 
-        task.setTitle("Test Task");
-        task.setDescription("This is a test task.");
-        task.setPriority("HIGH");
-        task.setDueDate("2023-10-01 10:00:00");
+		task.setTitle("Test Task");
+		task.setDescription("This is a test task.");
+		task.setPriority("HIGH");
+		task.setDueDate("2023-10-01 10:00:00");
 
-        Task taskEntity = task.toEntity();
+		Task taskEntity = task.toEntity();
 
-        Mockito.when(taskService.getTaskById(taskId)).thenReturn(taskEntity);
+		Mockito.when(taskService.getTaskById(taskId)).thenReturn(taskEntity);
 
-        mockMvc.perform(get(BASE_URL + "/" + taskId))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.title").value("Test Task"))
-                .andExpect(jsonPath("$.description").value("This is a test task."))
-                .andExpect(jsonPath("$.priority").value("HIGH"))
-                .andExpect(jsonPath("$.due_date").value("2023-10-01T10:00:00"))
-                .andExpect(jsonPath("$.status").value("OPEN"))
-                .andDo(print());
-    }
+		mockMvc.perform(get(BASE_URL + "/" + taskId))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/json"))
+				.andExpect(jsonPath("$.title").value("Test Task"))
+				.andExpect(jsonPath("$.description").value("This is a test task."))
+				.andExpect(jsonPath("$.priority").value("HIGH"))
+				.andExpect(jsonPath("$.due_date").value("2023-10-01T10:00:00"))
+				.andExpect(jsonPath("$.status").value("OPEN"))
+				.andDo(print());
+	}
 
-    @Test
-    public void testAddShouldReturn201Created() throws Exception {
-        CreateTaskDTO createTaskDTO = new CreateTaskDTO();
+	@Test
+	public void testDeleteTaskShouldReturn204NoContent() throws Exception {
+		int taskId = 1;
 
-        createTaskDTO.setTitle("Test Task");
-        createTaskDTO.setDescription("This is a test task.");
-        createTaskDTO.setPriority("HIGH");
-        createTaskDTO.setDueDate("2023-10-01 10:00:00");
+		Mockito.doNothing().when(taskService).deleteTask(taskId);
 
-        Task task = createTaskDTO.toEntity();
+		String requestURI = BASE_URL + "/" + taskId;
 
-        Mockito.when(taskService.createTask(createTaskDTO)).thenReturn(task);
+		mockMvc.perform(delete(requestURI).contentType("application/json"))
+				.andExpect(status().isNoContent());
+	}
 
-        String bodyContent = mapper.writeValueAsString(createTaskDTO);
+	@Test
+	public void testFindTaskShouldReturn405MethodNotAllowed() throws Exception {
+		int taskId = 9999;
 
-        mockMvc.perform(post(BASE_URL).contentType("application/json").content(bodyContent))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.title").value("Test Task"))
-                .andExpect(jsonPath("$.description").value("This is a test task."))
-                .andExpect(jsonPath("$.priority").value("HIGH"))
-                .andExpect(jsonPath("$.due_date").value("2023-10-01T10:00:00"))
-                .andExpect(jsonPath("$.status").value("OPEN"))
-                .andDo(print());
+		String requestURI = BASE_URL + "/" + taskId;
 
-    }
+		mockMvc.perform(post(requestURI).contentType("application/json"))
+				.andExpect(status().isMethodNotAllowed())
+				.andDo(print());
+	}
 
-    @Test
-    public void testUpdateShouldReturn200Ok() throws Exception {
-        UpdateTaskDTO updateTaskDTO = new UpdateTaskDTO();
+	@Test
+	public void testFindTaskShouldReturn404MethodNotFound() throws Exception {
+		int taskId = 9999;
 
-        updateTaskDTO.setTitle("Updated Task");
-        updateTaskDTO.setDescription("This is an updated task.");
-        updateTaskDTO.setPriority("LOW");
-        updateTaskDTO.setDueDate("2023-10-02 10:00:00");
+		String requestURI = BASE_URL + "/" + taskId;
 
-        Task task = updateTaskDTO.toEntity();
-        task.setId(1);
+		mockMvc.perform(get(requestURI).contentType("application/json"))
+				.andExpect(status().isNotFound())
+				.andDo(print());
+	}
 
-        Mockito.when(taskService.updateTask(1, updateTaskDTO)).thenReturn(task);
+	@Test
+	public void testAddTaskShouldReturn201Created() throws Exception {
+		CreateTaskDTO createTaskDTO = new CreateTaskDTO();
 
-        String bodyContent = mapper.writeValueAsString(updateTaskDTO);
+		createTaskDTO.setTitle("Test Task");
+		createTaskDTO.setDescription("This is a test task.");
+		createTaskDTO.setPriority("HIGH");
+		createTaskDTO.setDueDate("2023-10-01 10:00:00");
 
-        mockMvc.perform(put(BASE_URL + "/1").contentType("application/json").content(bodyContent))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.title").value("Updated Task"))
-                .andExpect(jsonPath("$.description").value("This is an updated task."))
-                .andExpect(jsonPath("$.priority").value("LOW"))
-                .andExpect(jsonPath("$.due_date").value("2023-10-02T10:00:00"))
-                .andExpect(jsonPath("$.status").value("OPEN"))
-                .andDo(print());
+		Task task = createTaskDTO.toEntity();
 
-    }
+		Mockito.when(taskService.createTask(createTaskDTO)).thenReturn(task);
 
-    @Test
-    public void testDeleteShouldReturn204NoContent() throws Exception {
-        int taskId = 1;
+		String bodyContent = mapper.writeValueAsString(createTaskDTO);
 
-        Mockito.doNothing().when(taskService).deleteTask(taskId);
+		mockMvc.perform(post(BASE_URL).contentType("application/json").content(bodyContent))
+				.andExpect(status().isCreated())
+				.andExpect(content().contentType("application/json"))
+				.andExpect(jsonPath("$.title").value("Test Task"))
+				.andExpect(jsonPath("$.description").value("This is a test task."))
+				.andExpect(jsonPath("$.priority").value("HIGH"))
+				.andExpect(jsonPath("$.due_date").value("2023-10-01T10:00:00"))
+				.andExpect(jsonPath("$.status").value("OPEN"))
+				.andDo(print());
 
-        mockMvc.perform(delete(BASE_URL + "/" + taskId))
-                .andExpect(status().isNoContent());
-    }
+	}
 
+	@Test
+	public void testAddTaskShouldReturn400BadRequest() throws Exception {
+		CreateTaskDTO createTaskDTO = new CreateTaskDTO();
+
+		String bodyContent = mapper.writeValueAsString(createTaskDTO);
+
+		mockMvc.perform(post(BASE_URL).contentType("application/json").content(bodyContent))
+				.andExpect(status().isBadRequest())
+				.andDo(print());
+	}
+
+	@Test
+	public void testUpdateTaskShouldReturn200Ok() throws Exception {
+		UpdateTaskDTO updateTaskDTO = new UpdateTaskDTO();
+
+		updateTaskDTO.setTitle("Updated Task");
+		updateTaskDTO.setDescription("This is an updated task.");
+		updateTaskDTO.setStatus("CANCELLED");
+		updateTaskDTO.setPriority("LOW");
+		updateTaskDTO.setDueDate("2023-10-02 10:00:00");
+
+		Task task = updateTaskDTO.toEntity();
+		task.setId(1);
+
+		Mockito.when(taskService.updateTask(1, updateTaskDTO)).thenReturn(task);
+
+		String bodyContent = mapper.writeValueAsString(updateTaskDTO);
+
+		mockMvc.perform(put(BASE_URL + "/1").contentType("application/json").content(bodyContent))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/json"))
+				.andExpect(jsonPath("$.title").value("Updated Task"))
+				.andExpect(jsonPath("$.description").value("This is an updated task."))
+				.andExpect(jsonPath("$.priority").value("LOW"))
+				.andExpect(jsonPath("$.due_date").value("2023-10-02T10:00:00"))
+				.andExpect(jsonPath("$.status").value("CANCELLED"))
+				.andDo(print());
+
+	}
 }

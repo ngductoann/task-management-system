@@ -7,16 +7,20 @@ import com.toan.task_management_springboot.service.TaskService;
 import com.toan.task_management_springboot.repository.TaskRepository;
 import com.toan.task_management_springboot.dto.CreateTaskDTO;
 import com.toan.task_management_springboot.dto.UpdateTaskDTO;
+import com.toan.task_management_springboot.exception.ResourceNotFoundException;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskServiceImpl implements TaskService {
-    @Autowired
-    public TaskRepository taskRepository;
+
+    private final TaskRepository taskRepository;
+
+    public TaskServiceImpl(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
     @Override
     public List<Task> getAllTasks() {
@@ -26,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task getTaskById(Integer id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Task with ID " + id + " does not exist."));
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID " + id + " does not exist."));
     }
 
     @Override
@@ -36,27 +40,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task updateTask(Integer id, UpdateTaskDTO updateTaskDTO) {
-        if (taskRepository.existsById(id)) {
-            Task existingTask = taskRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Task with ID " + id + " does not exist."));
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID " + id + " does not exist."));
 
-            Task updatedTask = updateTaskDTO.toEntity();
-            updatedTask.setId(id);
-            updatedTask.setCreatedAt(existingTask.getCreatedAt()); // Preserve createdAt
+        Task updatedTask = updateTaskDTO.toEntity();
+        updatedTask.setId(id);
+        updatedTask.setCreatedAt(existingTask.getCreatedAt()); // Preserve createdAt
 
-            return taskRepository.save(updatedTask);
-        } else {
-            throw new IllegalArgumentException("Task with ID " + id + " does not exist.");
-        }
+        return taskRepository.save(updatedTask);
     }
 
     @Override
     public void deleteTask(Integer id) {
-        if (taskRepository.existsById(id)) {
-            taskRepository.deleteById(id);
-        } else {
-            throw new IllegalArgumentException("Task with ID " + id + " does not exist.");
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with ID " + id + " does not exist."));
+        taskRepository.delete(task);
     }
 
     @Override
@@ -74,8 +72,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<Task> getTasksByStatusAndPriority(Status status, Priority priority) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException(
-                "Unimplemented method 'getTasksByStatusAndPriority'");
+        throw new UnsupportedOperationException("Unimplemented method 'getTasksByStatusAndPriority'");
     }
 
     @Override

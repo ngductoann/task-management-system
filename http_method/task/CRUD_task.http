@@ -1,18 +1,18 @@
 ###
+# Api get all tasks
 
-### Api get all tasks
 GET http://localhost:8080/api/v1/tasks
 Content-Type: application/json
 
 ###
+# Api get task by id
 
-### Api get task by id
 GET http://localhost:8080/api/v1/tasks/1
 Content-Type: application/json
 
 ###
+# Api create task
 
-### Api create task
 POST http://localhost:8080/api/v1/tasks
 Content-Type: application/json
 
@@ -20,12 +20,26 @@ Content-Type: application/json
   "title": "Complete project documentation",
   "description": "Write and finalize the project documentation.",
   "priority": "HIGH",
-  "dueDate": "2025-04-10 15:00:00"
+  "due_date": "2025-04-10 15:00:00"
 }
 
 ###
 
-### Api update task with id 1
+###
+# Api create task error field
+
+POST http://localhost:8080/api/v1/tasks
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "",
+  "priority": "",
+  "due_date": ""
+}
+
+###
+# Api update task with id 1
 
 PUT http://localhost:8080/api/v1/tasks/1
 Content-Type: application/json
@@ -35,12 +49,11 @@ Content-Type: application/json
   "description": "Updated description of the task.",
   "status": "IN_PROGRESS",
   "priority": "MEDIUM",
-  "dueDate": "2025-04-15 10:00:00"
+  "due_date": "2025-04-15 10:00:00"
 }
 
 ###
-
-### Api delete task with id 1
+# Api delete task with id 1
 
 DELETE http://localhost:8080/api/v1/tasks/1
 Content-Type: application/json

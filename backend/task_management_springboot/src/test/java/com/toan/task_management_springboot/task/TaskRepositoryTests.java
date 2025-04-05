@@ -1,8 +1,11 @@
 package com.toan.task_management_springboot.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ public class TaskRepositoryTests {
             Status status, LocalDateTime dueDate) {
 
         Task task = new Task();
+
         task.setTitle(title);
         task.setDescription(description);
         task.setPriority(priority);
@@ -37,7 +41,20 @@ public class TaskRepositoryTests {
     }
 
     @Test
-    public void testFindTaskById() {
+    public void testGetAllTaskSuccess() {
+        insertTaskToDB("Test Task", "This is a test task.", Priority.HIGH, Status.OPEN,
+                LocalDateTime.now().plusHours(8));
+        insertTaskToDB("Test Task 2", "This is a test task 2.", Priority.MEDIUM, Status.IN_PROGRESS,
+                LocalDateTime.now().plusHours(4));
+
+        List<Task> tasks = taskRepository.findAll();
+
+        assertNotNull(tasks);
+        assertEquals(2, tasks.size());
+    }
+
+    @Test
+    public void testFindTaskByIdFound() {
         Task taskSaved = insertTaskToDB("Test Task", "This is a test task.", Priority.HIGH, Status.OPEN,
                 LocalDateTime.now().plusHours(8));
 
@@ -50,6 +67,15 @@ public class TaskRepositoryTests {
         assertEquals(task.getDescription(), "This is a test task.");
         assertEquals(task.getPriority(), Priority.HIGH);
         assertEquals(task.getStatus(), Status.OPEN);
+    }
+
+    @Test
+    public void testFindTaskByIdNotFound() {
+        Integer id = 9999;
+
+        Task task = taskRepository.findById(id).orElse(null);
+
+        assertNull(task);
     }
 
     @Test
